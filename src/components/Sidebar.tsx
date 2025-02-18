@@ -34,6 +34,7 @@ export default function Sidebar(){
               <li 
                 className="py-2 hover:underline hover:font-bold transition-all ease-in-out duration-400"
                 onClick={() => setChat(chat)}
+                key={chat.id}
               >{chat.title}</li>
             ))
             }

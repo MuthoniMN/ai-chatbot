@@ -38,8 +38,9 @@ export default function TextContextProvider(
         savedChats = await list(Stores.Chats) as TChat[];
         chat = savedChats[0];
         console.log(savedChats);
-        setChats(savedChats);
       }
+
+      setChats(savedChats);
 
       chat = savedChats[0];
       console.log(chat);
