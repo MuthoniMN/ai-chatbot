@@ -1,4 +1,5 @@
 import { FaCheck, FaCheckDouble } from "react-icons/fa6";
+import { Link } from "react-router";
 
 export default function Index(){
   return (
@@ -18,7 +19,9 @@ export default function Index(){
         </li>
         <li className="flex gap-2 items-center"> <FaCheck className="text-lg text-emerald-600" />Identify the text's language</li>
       </ul>
-      <button className="py-2 px-6 bg-gray-700 text-white transition-all ease-in-out duration-400 hover:font-bold hover:bg-gray-800 rounded-md">Get Started!</button>
+      <Link to="/chat">
+        <button className="py-2 px-6 bg-gray-700 text-white transition-all ease-in-out duration-400 hover:font-bold hover:bg-gray-800 rounded-md">Get Started!</button>
+      </Link>
     </section>
   );
 }
