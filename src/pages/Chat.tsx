@@ -40,7 +40,7 @@ export default function Chat() {
             <p className={`w-full py-2 px-4 rounded-lg space-y-4 ${message.type == 'input' ? 'bg-gray-300 text-right':'bg-gray-600 text-white text-left self-start'}`}>{message.message}</p>
             {message.type == 'input' && message.message.length >= 150 && message.language == "English" && (<Summarize message={message.message} />)}
             {message.type == 'input' && (<Translate language={message.language} message={message.message} />)}
-            {message.type == 'output' && messages[index-1].language != message.language && <p className="text-sm italic">Translated to: {message.language}</p>}
+            {message.type == 'output' && <p className="text-sm italic">{message?.action == 'translate' ? `Translated to: ${message.language}` : message?.action == 'summarize' ? "Summarized" : ""}</p>}
             </div>
           </div>
           </div>

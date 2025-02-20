@@ -46,6 +46,10 @@ export default function Message(){
   }, [newMessage]);
 
   const handleSubmit = async (e: FormEvent) => {
+    if(newMessage.length < 1) {
+      setError('Your text is too short');
+      return;
+    }
     e.preventDefault();
     const data = {
       chat_id: chat.id,

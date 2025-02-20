@@ -1,4 +1,4 @@
-<Bimport { TChat, TMessage } from "../types/";
+import { TChat, TMessage } from "../types/";
 
 let db: IDBDatabase | null = null;
 

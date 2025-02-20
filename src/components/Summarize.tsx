@@ -44,6 +44,7 @@ export default function Summarize({ message }: {
           message: summ,
           created_at: new Date(),
           type: 'output',
+          action: 'summarize',
           language: 'English'
         } 
 

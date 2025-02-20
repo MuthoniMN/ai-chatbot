@@ -11,6 +11,7 @@ export type TMessage = {
   chat_id: number,
   message: string,
   language: string,
+  action?: string,
   type: 'input' | 'output',
   created_at: Date
 }

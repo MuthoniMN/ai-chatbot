@@ -56,6 +56,7 @@ export default function Translate({ language, message }: {
             const data = {
               message: newMessage as string,
               type: 'output',
+              action: 'translate',
               chat_id: chat.id,
               created_at: new Date,
               language: languages[target]
