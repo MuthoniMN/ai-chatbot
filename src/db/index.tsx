@@ -69,8 +69,9 @@ export const add = (storeName: string, data: TChat|TMessage) => {
 }
 
 export const list  = (storeName: string) => {
-  return new Promise((resolve) => {
-    request = indexedDB.open('chats_data');
+  console.log(storeName);
+  return new Promise(async (resolve) => {
+    request = await indexedDB.open('chats_data');
 
     request.onsuccess = () => {
       console.log('Retrieving data...');

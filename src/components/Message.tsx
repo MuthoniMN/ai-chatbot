@@ -3,12 +3,11 @@ import { TextContext } from "../context/";
 import { TMessage, TTextContext, AITool, AI } from "../types/";
 import { add, getMessages, Stores } from "../db/";
 import { getLanguage } from "../utils/language";
-import { IoIosSend } from "react-icons/io";
+import { IoIosSend, IoIosWarning } from "react-icons/io";
 
 export default function Message(){
-  const { chat, setMessages } = useContext(TextContext) as TTextContext;
+  const { chat, setMessages, error, setError } = useContext(TextContext) as TTextContext;
   const [newMessage, setNewMessage] = useState('');
-  const [error, setError] = useState('');
   const [language, setLanguage] = useState('');
 
   useEffect(() => {
@@ -38,6 +37,8 @@ export default function Message(){
 
         const lang = await detector.detect(newMessage);
         if(lang[0]) setLanguage(getLanguage(lang[0].detectedLanguage));
+      } else {
+        setError('Your browser does not support Language Detection');
       }
     }
 
@@ -63,15 +64,17 @@ export default function Message(){
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-4 items-center">
+    <form onSubmit={handleSubmit}>
+      {error && <p className="bg-red-300 text-red-700 p-2 my-2 font-bold flex gap-2 items-center"><IoIosWarning className="text-xl" /> {error}</p>}
+      <div className="flex gap-4 items-center">
       <div className="space-y-2">
       <textarea onChange={(e) => setNewMessage(e.target.value)} value={newMessage} className="w-[75vw] border-gray-800 border-[1px] py-2 px-4 rounded-lg z-10" rows={3} cols={10} aria-describedby="error"></textarea>
       {language && (<p className="text-sm text-black">Written in: <span className="font-bold">{language}</span></p>)}
-      {error && (<p className="text-red-500 font-bold" id="error">{error}</p>)}
       </div>
       <button type="submit" className="bg-gray-800 text-[#fafafa] hover:font-bold hover:text-white transition-all ease-in-out duration-400 w-[50px] h-[50px] rounded-full flex justify-center items-center text-2xl">
         <IoIosSend />
       </button>
+      </div>
     </form>
   );
 }

@@ -20,6 +20,7 @@ export default function Sidebar(){
     await add(Stores.Chats, newChat);
     const chatList = await list(Stores.Chats) as TChat[];
     setChats(chatList);
+    setChat(chatList[chatList.length - 1]);
     setCreate(false);
   }
   return (

@@ -23,7 +23,11 @@ export type TTextContext = {
   messages: TMessage[],
   setMessages: Dispatch<SetStateAction<TMessage[]>>,
   error: string,
-  setError: Dispatch<SetStateAction<string>>
+  setError: Dispatch<SetStateAction<string>>,
+  loading: boolean,
+  setLoading: Dispatch<SetStateAction<boolean>>,
+  valid: boolean,
+  setValid: Dispatch<SetStateAction<boolean>>
 }
 
 export type TShortLang = 'es' | 'en' | 'pt' | 'fr' | 'tr' | 'ru';

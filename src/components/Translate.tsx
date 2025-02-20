@@ -7,7 +7,7 @@ export default function Translate({ language, message }: {
   language: string,
   message: string,
 }){
-  const { chat, setMessages } = useContext(TextContext) as TTextContext;
+  const { chat, setMessages, setError, loading, setLoading } = useContext(TextContext) as TTextContext;
   const languages: TLang = {
     'en': 'English',
     'pt': 'Portuguese',
@@ -20,12 +20,18 @@ export default function Translate({ language, message }: {
   const shorthandLang = Object.keys(languages).find(key => languages[key] === language)
 
   const [target, setTarget ] = useState('');
-  const [loading, setLoading ] = useState(false);
   const handleTranslate = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    try{
     if ('ai' in self && 'languageDetector' in (self.ai as AI)){
-      console.log(shorthandLang, target);
-        const translator = await ((self.ai as AI).translator as AITool).create({
+      console.log(target, shorthandLang)
+      const translatorCapabilities = await self.ai.translator.capabilities();
+      const available = translatorCapabilities.languagePairAvailable(shorthandLang, target);
+      let translator;
+      if(available === 'after-download'){
+        translator = await ((self.ai as AI).translator as AITool).create({
           sourceLanguage: shorthandLang,
           targetLanguage: target,
           monitor(m) {
@@ -34,8 +40,18 @@ export default function Translate({ language, message }: {
             });
           }
         });
+      }else if(available === 'readily'){
+        translator = await ((self.ai as AI).translator as AITool).create({
+          sourceLanguage: shorthandLang,
+          targetLanguage: target,
+        });
+      }else if(available === 'no'){
+        setError(`Sorry! Can't translate from ${languages[shorthandLang as string]} to ${languages[target]}`);
+        setLoading(false);
+        return;
+      }
 
-        const newMessage = await translator.translate(message);
+        const newMessage = await translator?.translate(message);
         console.log(newMessage);
 
         if(newMessage){
@@ -50,30 +66,33 @@ export default function Translate({ language, message }: {
           await add(Stores.Messages, data);
           const messages = await getMessages(chat.id as number);
           setMessages(messages as TMessage[]);
+          setLoading(false);
         }
+    }else {
+      setError('Your browser does not support Translation');
+      setLoading(false);
+    }}catch(e){
+      console.error(e);
+      setError('Failed to translate text');
+      setLoading(false);
     }
   }
   return (
-    <form className="space-y-2" onSubmit={handleTranslate}>
-      <div className="w-full flex justify-between items-center">
-        <label htmlFor="language">Translate to: </label>
+    <form className="w-full" onSubmit={handleTranslate}>
+      <div className="w-full flex gap-2 justify-between items-center">
         <select className="border-[2px] border-gray-600 w-[75%] p-2" value={target} onChange={(e) => setTarget(e.target.value)}>
+        <option>--Select Language--</option>
           {
             Object.keys(languages).map(lang => languages[lang] != language && (
               <option key={lang} value={lang}>{languages[lang]}</option>
             ))
           }
         </select>
-      </div>
+
       <button className={`bg-white border-[1px] border-gray-500 p-2 rounded-md hover:border-[2px] hover:font-bold transition-all ease-in-out duration-400 ${loading && 'bg-gray-400'}`} type="submit" disabled={loading}>
-      {loading ? (
-        <>
-          <svg className="mr-3 size-5 animate-spin" viewBox="0 0 24 24">
-          </svg>
-          Translating…
-        </>
-      ): 'Translate'}
+        Translate
       </button>
+      </div>
     </form>
   );
 }

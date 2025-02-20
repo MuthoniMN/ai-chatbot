@@ -1,6 +1,6 @@
 import { useEffect, useState, ReactNode } from "react";
 import { TextContext } from "./";
-import { TChat, TMessage } from "../types/";
+import { TChat, TMessage, AI } from "../types/";
 import { initDB, add, list, getMessages, Stores } from "../db/";
 
 export default function TextContextProvider(
@@ -10,6 +10,9 @@ export default function TextContextProvider(
   const [chat, setChat] = useState<TChat>({} as TChat);
   const [messages, setMessages] = useState<TMessage[]>([]);
   const [dbConnected, setDbConnected] = useState<boolean>(false);
+  const [loading, setLoading ] = useState(false);
+  const [valid, setValid ] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() =>  {
     const initializeDB = async () => {
@@ -17,6 +20,12 @@ export default function TextContextProvider(
       setDbConnected(status);
     }
       initializeDB();
+
+    if (!('ai' in self && 'languageDetector' in (self.ai as AI) && 'translator' in (self.ai as AI) && 'summarizer' in (self.ai as AI))){
+      setError('Your browser is not set up to run these features. Please switch to Chrome');
+      setValid(false);
+    }
+
   }, []);
 
   useEffect (() => {
@@ -26,7 +35,6 @@ export default function TextContextProvider(
 
     const getData = async () => {
       savedChats = await list(Stores.Chats) as TChat[];
-      console.log(savedChats);
 
       if(savedChats.length <= 0){
         const newChat: TChat = {
@@ -36,16 +44,16 @@ export default function TextContextProvider(
         await add(Stores.Chats, newChat) as TChat;
         
         savedChats = await list(Stores.Chats) as TChat[];
-        chat = savedChats[0];
-        console.log(savedChats);
       }
+
+      const currentChat = Number(localStorage.getItem('chatId'))
+      console.log(currentChat);
+      console.log(localStorage.getItem('chatId'));
 
       setChats(savedChats);
 
-      chat = savedChats[0];
-      console.log(chat);
+      chat = currentChat ? savedChats[currentChat] : savedChats[0];
       chatMessages = await getMessages(chat.id as number) as TMessage[];
-      console.log(chatMessages);
       
       setChat(chat);
       setMessages(chatMessages);
@@ -54,10 +62,21 @@ export default function TextContextProvider(
     getData();
   }, []);
 
+  useEffect(() => {
+    const fetchUpdate = async() => {
+      const update = await getMessages(chat.id as number) as TMessage[];
+      setMessages(update);
+    }
+    const saved = localStorage.getItem('chatId');
+    if(Number(saved) != (chat.id as number)) localStorage.setItem('chatId', `${chat.id as number}`)
+
+    fetchUpdate();
+  }, [chat]);
+
   if(dbConnected) console.log('DB connected!');
 
   return (
-    <TextContext.Provider value={{chats, messages, setChats, setMessages, chat, setChat}}>
+    <TextContext.Provider value={{chats, messages, setChats, setMessages, chat, setChat, error, setError, loading, setLoading, valid, setValid}}>
       {children}
     </TextContext.Provider>
   )
