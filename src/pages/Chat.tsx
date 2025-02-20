@@ -26,7 +26,7 @@ export default function Chat() {
       <h2 className="text-3xl font-bold">{chat.title}</h2>  
       <section className="h-full w-full overflow-y-auto scroll-smooth" >
       <section className="flex-1 w-full overflow-y-auto flex flex-col gap-4 items-end justify-end mb-4">
-        {messages && messages.map((message: TMessage, index: number) => (
+        {messages && messages.map((message: TMessage) => (
           <div className={`w-full md:w-1/2 max-w-[450px] py-2 px-4 rounded-lg space-y-4 ${message.type == 'output' && 'self-start'}`} key={message.id}>
           <div className={`flex gap-2 justify-between w-full ${message.type == 'input' ? 'flex-row-reverse' : 'flex-row'}`}>
           <div className={`w-10 h-10 rounded-full bg-[#2b2b31ff] text-white flex items-center justify-center`}>
