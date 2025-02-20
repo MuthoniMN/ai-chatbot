@@ -25,10 +25,10 @@ export default function Sidebar(){
   }
   return (
     <div>
-      <button className={`bg-white border-[1px] border-gray-500 p-2 rounded-md absolute ${toggle ? 'top-4 left-[210px]' : 'top-4 left-4'} transition-all ease-in-out duration-400 text-gray-800`} onClick={() => setToggle(tog => !tog)}>
+      <button className={`bg-white border-[1px] border-gray-500 p-2 rounded-md absolute ${toggle ? 'top-4 left-[210px]' : 'top-4 left-4'} transition-all ease-in-out duration-400 text-gray-800`} onClick={() => setToggle(tog => !tog)} aria-label="Menu button">
         {toggle ? ( <FaBarsStaggered /> ) : ( <FaBars /> ) }
       </button>
-        <div className={`${toggle ? 'translate-x-0' : '-translate-x-[200px]'} absolute top-0 h-screen py-2 px-4 w-[200px] bg-gray-600 text-white transition-all ease-in-out duration-500 flex flex-col justify-between`}>
+        <div className={`${toggle ? 'translate-x-0' : '-translate-x-[200px]'} absolute top-0 h-screen py-2 px-4 w-[200px] bg-gray-600 text-white transition-all ease-in-out duration-500 flex flex-col justify-between`} aria-label="Menu">
           <nav>
             <ul className="divide-y-2 divide-[#fafafa] max-h-[400px] overflow-y-auto overscroll-contain">
             { chats.map((chat: TChat) => (

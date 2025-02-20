@@ -20,16 +20,16 @@ export default function Chat() {
   }, [messages, loading]);
 
   return (
-    <section>
+    <section aria-label="Chat">
       <Sidebar />
-      <section className="w-[100vw] h-[100vh] flex flex-col justify-between items-center gap-6 py-4 px-6 -z-10">
-      <h2 className="text-3xl font-bold">{chat.title}</h2>  
+      <section className="w-[100vw] h-[100vh] flex flex-col justify-between items-center gap-6 p-4 md:px-6 -z-10">
+      <h2 className="text-3xl font-bold" aria-label="Chat Title">{chat.title}</h2>  
       <section className="h-full w-full overflow-y-auto scroll-smooth" >
-      <section className="flex-1 w-full overflow-y-auto flex flex-col gap-4 items-end justify-end mb-4">
+      <section className="flex-1 w-full overflow-y-auto flex flex-col gap-4 items-end justify-end mb-4" aria-label="Messages">
         {messages && messages.map((message: TMessage) => (
           <div className={`w-full md:w-1/2 max-w-[450px] py-2 px-4 rounded-lg space-y-4 ${message.type == 'output' && 'self-start'}`} key={message.id}>
           <div className={`flex gap-2 justify-between w-full ${message.type == 'input' ? 'flex-row-reverse' : 'flex-row'}`}>
-          <div className={`w-10 h-10 rounded-full bg-[#2b2b31ff] text-white flex items-center justify-center`}>
+          <div className={`w-10 h-10 rounded-full bg-[#2b2b31ff] text-white flex items-center justify-center`} aria-label="User">
           {
             message.type == 'input' ?
               <FaUser className="text-xl" />
@@ -37,16 +37,16 @@ export default function Chat() {
           }
           </div>
           <div className="flex flex-col w-full items-end gap-2">
-            <p className={`w-full py-2 px-4 rounded-lg space-y-4 ${message.type == 'input' ? 'bg-gray-300 text-right':'bg-gray-600 text-white text-left self-start'}`}>{message.message}</p>
+            <p className={`w-full py-2 px-4 rounded-lg space-y-4 ${message.type == 'input' ? 'bg-gray-300 text-right':'bg-gray-600 text-white text-left self-start'}`} aria-label="message">{message.message}</p>
+            {message.language && <p className="text-sm italic" aria-label="language">{message?.action == 'translate' ? `Translated to: ${message.language}` : message?.action == 'summarize' ? "Summarized" : `Written in: ${message.language}`}</p>}
             {message.type == 'input' && message.message.length >= 150 && message.language == "English" && (<Summarize message={message.message} />)}
             {message.type == 'input' && (<Translate language={message.language} message={message.message} />)}
-            {message.type == 'output' && <p className="text-sm italic">{message?.action == 'translate' ? `Translated to: ${message.language}` : message?.action == 'summarize' ? "Summarized" : ""}</p>}
             </div>
           </div>
           </div>
         ))}
         { messages.length == 0 && (
-          <section className="w-full h-[60vh] flex items-center justify-center">
+          <section className="w-full h-[60vh] flex items-center justify-center" aria-label="Empty Messages Section">
             <h2 className="text-lg font-bold italic">Send a message to start interacting with the application.</h2>
           </section>)
         }

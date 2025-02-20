@@ -80,7 +80,7 @@ export default function Translate({ language, message }: {
   return (
     <form className="w-full" onSubmit={handleTranslate}>
       <div className="w-full flex gap-2 justify-between items-center">
-        <select className="border-[2px] border-gray-600 w-[75%] p-2" value={target} onChange={(e) => setTarget(e.target.value)}>
+        <select className="border-[2px] border-gray-600 w-[75%] p-2" value={target} onChange={(e) => setTarget(e.target.value)} aria-label="Select a language">
         <option>--Select Language--</option>
           {
             Object.keys(languages).map(lang => languages[lang] != language && (

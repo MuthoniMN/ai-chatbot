@@ -68,14 +68,14 @@ export default function Message(){
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <p className="bg-red-300 text-red-700 p-2 my-2 font-bold flex gap-2 items-center"><IoIosWarning className="text-xl" /> {error}</p>}
+    <form onSubmit={handleSubmit} aria-label="Message Form">
+      {error && <p aria-label="Error Message" id="error" className="bg-red-300 text-red-700 p-2 my-2 font-bold flex gap-2 items-center"><IoIosWarning className="text-xl" /> {error}</p>}
       <div className="flex gap-4 items-center">
       <div className="space-y-2">
-      <textarea onChange={(e) => setNewMessage(e.target.value)} value={newMessage} className="w-[75vw] border-gray-800 border-[1px] py-2 px-4 rounded-lg z-10" rows={3} cols={10} aria-describedby="error"></textarea>
+      <textarea aria-label="Message Box" onChange={(e) => setNewMessage(e.target.value)} value={newMessage} className="w-[75vw] border-gray-800 border-[1px] py-2 px-4 rounded-lg z-10" rows={3} cols={10} aria-describedby="error"></textarea>
       {language && (<p className="text-sm text-black">Written in: <span className="font-bold">{language}</span></p>)}
       </div>
-      <button type="submit" className="bg-gray-800 text-[#fafafa] hover:font-bold hover:text-white transition-all ease-in-out duration-400 w-[50px] h-[50px] rounded-full flex justify-center items-center text-2xl">
+      <button type="submit" className="bg-gray-800 text-[#fafafa] hover:font-bold hover:text-white transition-all ease-in-out duration-400 w-[50px] h-[50px] rounded-full flex justify-center items-center text-2xl" aria-label="Send Message Button">
         <IoIosSend />
       </button>
       </div>

@@ -65,6 +65,6 @@ export default function Summarize({ message }: {
   };
 
   return (
-    <button onClick={handleSummarize} className="bg-gray-800 text-[#fafafa] hover:font-bold hover:text-white transition-all ease-in-out duration-400 py-2 px-4 rounded-lg mt-2">Summarize Text</button>
+    <button onClick={handleSummarize} className="bg-gray-800 text-[#fafafa] hover:font-bold hover:text-white transition-all ease-in-out duration-400 py-2 px-4 rounded-lg mt-2" aria-label="Summarize text button">Summarize Text</button>
   );
 }
