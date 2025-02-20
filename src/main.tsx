@@ -16,7 +16,7 @@ document.head.append(orgMeta);
 
 const oMeta = document.createElement('meta');
 oMeta.httpEquiv = 'origin-trial';
-oMeta.content = import.meta.env.VITE_TRANSLATOR_TOKEN;
+oMeta.content = import.meta.env.VITE_DETECTOR_TOKEN;
 document.head.append(oMeta);
 
 
