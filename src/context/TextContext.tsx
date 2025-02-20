@@ -1,6 +1,6 @@
 import { useEffect, useState, ReactNode } from "react";
 import { TextContext } from "./";
-import { TChat, TMessage, AI } from "../types/";
+import { TChat, TMessage } from "../types/";
 import { initDB, add, list, getMessages, Stores } from "../db/";
 
 export default function TextContextProvider(
@@ -21,7 +21,7 @@ export default function TextContextProvider(
     }
       initializeDB();
 
-    if (!('ai' in self && 'languageDetector' in (self.ai as AI) && 'translator' in (self.ai as AI) && 'summarizer' in (self.ai as AI))){
+    if (!('ai' in self && 'languageDetector' in self.ai && 'translator' in self.ai && 'summarizer' in self.ai)){
       setError('Your browser is not set up to run these features. Please switch to Chrome');
       setValid(false);
     }
@@ -47,8 +47,6 @@ export default function TextContextProvider(
       }
 
       const currentChat = Number(localStorage.getItem('chatId'))
-      console.log(currentChat);
-      console.log(localStorage.getItem('chatId'));
 
       setChats(savedChats);
 

@@ -1,5 +1,5 @@
-import { useState, useContext } from "react";
-import { TLang, AI, AITool, TTextContext, TMessage } from "../types/";
+import { useState, useContext, FormEvent } from "react";
+import { TLang, TTextContext, TMessage } from "../types/";
 import { add, getMessages, Stores } from "../db/";
 import { TextContext } from "../context/";
 
@@ -20,58 +20,57 @@ export default function Translate({ language, message }: {
   const shorthandLang = Object.keys(languages).find(key => languages[key] === language)
 
   const [target, setTarget ] = useState('');
-  const handleTranslate = async (e) => {
+  const handleTranslate = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try{
-    if ('ai' in self && 'languageDetector' in (self.ai as AI)){
-      console.log(target, shorthandLang)
-      const translatorCapabilities = await self.ai.translator.capabilities();
-      const available = translatorCapabilities.languagePairAvailable(shorthandLang, target);
-      let translator;
-      if(available === 'after-download'){
-        translator = await ((self.ai as AI).translator as AITool).create({
-          sourceLanguage: shorthandLang,
-          targetLanguage: target,
-          monitor(m) {
-            m.addEventListener('downloadprogress', (e) => {
-              console.log(`Downloaded ${e.loaded} of ${e.total} bytes`);
-            });
-          }
-        });
-      }else if(available === 'readily'){
-        translator = await ((self.ai as AI).translator as AITool).create({
-          sourceLanguage: shorthandLang,
-          targetLanguage: target,
-        });
-      }else if(available === 'no'){
-        setError(`Sorry! Can't translate from ${languages[shorthandLang as string]} to ${languages[target]}`);
-        setLoading(false);
-        return;
-      }
-
-        const newMessage = await translator?.translate(message);
-        console.log(newMessage);
-
-        if(newMessage){
-          const data = {
-            message: newMessage as string,
-            type: 'output',
-            chat_id: chat.id,
-            created_at: new Date,
-            language: languages[target]
-          } as TMessage;
-
-          await add(Stores.Messages, data);
-          const messages = await getMessages(chat.id as number);
-          setMessages(messages as TMessage[]);
+      if ('ai' in self && 'languageDetector' in self.ai){
+        const translatorCapabilities = await self?.ai?.translator.capabilities();
+        const available = translatorCapabilities.languagePairAvailable(shorthandLang as string, target);
+        let translator;
+        if(available === 'after-download'){
+          translator = await self?.ai?.translator.create({
+            sourceLanguage: shorthandLang as string,
+            targetLanguage: target,
+            monitor(m) {
+              m.addEventListener('downloadprogress', (e) => {
+                console.log(`Downloaded ${e.loaded} of ${e.total} bytes`);
+              });
+            }
+          });
+        }else if(available === 'readily'){
+          translator = await self?.ai?.translator.create({
+            sourceLanguage: shorthandLang as string,
+            targetLanguage: target,
+          });
+        }else if(available === 'no'){
+          setError(`Sorry! Can't translate from ${languages[shorthandLang as string]} to ${languages[target]}`);
           setLoading(false);
+          return;
         }
-    }else {
-      setError('Your browser does not support Translation');
-      setLoading(false);
-    }}catch(e){
+
+          const newMessage = await translator?.translate(message);
+
+          if(newMessage){
+            const data = {
+              message: newMessage as string,
+              type: 'output',
+              chat_id: chat.id,
+              created_at: new Date,
+              language: languages[target]
+            } as TMessage;
+
+            await add(Stores.Messages, data);
+            const messages = await getMessages(chat.id as number);
+            setMessages(messages as TMessage[]);
+            setLoading(false);
+          }
+      }else {
+        setError('Your browser does not support Translation');
+        setLoading(false);
+      }
+    }catch(e){
       console.error(e);
       setError('Failed to translate text');
       setLoading(false);

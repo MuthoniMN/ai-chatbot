@@ -2,7 +2,6 @@ import { TChat, TMessage } from "../types/";
 
 let request: IDBOpenDBRequest;
 let db: IDBDatabase;
-let version = 1;
 
 export enum Stores {
   Chats = "chats",
@@ -69,9 +68,8 @@ export const add = (storeName: string, data: TChat|TMessage) => {
 }
 
 export const list  = (storeName: string) => {
-  console.log(storeName);
-  return new Promise(async (resolve) => {
-    request = await indexedDB.open('chats_data');
+  return new Promise( (resolve) => {
+    request = indexedDB.open('chats_data');
 
     request.onsuccess = () => {
       console.log('Retrieving data...');

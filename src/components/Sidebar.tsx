@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, FormEvent } from "react";
 import { FaBars, FaBarsStaggered, FaPlus } from "react-icons/fa6";
 import { TextContext } from "../context/";
 import { TChat, TTextContext } from "../types/";
@@ -10,7 +10,7 @@ export default function Sidebar(){
   const { chats, setChat, setChats } = useContext(TextContext) as TTextContext;
   const [title, setTitle] = useState('');
 
-  const handleAdd = async (e) => {
+  const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
     const newChat = {
       title,

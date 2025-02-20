@@ -36,51 +36,16 @@ export type TLang = {
   [lang in TShortLang | string]: string
 }
 
-export interface AICapabilities {
-  available: 'no' | 'readily' | 'with-download';
+export type AISummarizerType = {
+  addEventListener: (event: string, fn: (e: DownloadEvent) => void) => void,
+  ready: Promise<boolean>,
+} & AISummarizer
+
+export type DownloadEvent = {
+  loaded: number,
+  total: number
 }
 
-export interface AITool {
-  capabilities: () => Promise<AICapabilities>;
-  create: (options?: { 
-  sharedContext?: string,
-  type?: string | 'key-points' | 'tl:dr' | 'teaser' | 'headline',
-  format?: string | 'markdown' | 'plain-text',
-  length?: 'short' | 'medium' | 'long' | string, 
-  sourceLanguage?: string, 
-  targetLanguage?: string, 
-  monitor?: (m: Monitor) => void }) => Promise<LanguageDetectorInstance>;
-}
-
-export interface LanguageDetectorResponse {
-  confidence: number;
-  detectedLanguage: string;
-}
-
-export interface SummarizerOptions {
-  sharedContext?: string,
-  type?: string | 'key-points' | 'tl:dr' | 'teaser' | 'headline',
-  format?: string | 'markdown' | 'plain-text',
-  length?: 'short' | 'medium' | 'long'
-}
-
-export interface LanguageDetectorInstance {
-  ready: Promise<void>;
-  detect: (s: string) => Promise<LanguageDetectorResponse[]>;
-  translate: (s: string) => Promise<string>;
-  summarize: (s: string) => Promise<string>;
-}
-
-export interface Monitor {
-  addEventListener: (event: string, callback: (e: ProgressEvent) => void) => void;
-}
-
-export interface AI {
-  languageDetector?: AITool;
-  translator?: AITool;
-  summarizer?: AITool;
-}
-
-export interface Self {
-  ai?: AI;
-}
+export type AILanguageDetectorType = {
+  ready: Promise<boolean>,
+} & AILanguageDetector

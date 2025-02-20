@@ -1,39 +1,44 @@
-import { useState, useContext } from "react";
-import { AI, AITool, TMessage, Monitor, TTextContext } from "../types/";
+import { useContext } from "react";
+import { TMessage, TTextContext, DownloadEvent,  AISummarizerType} from "../types/";
 import { TextContext } from "../context/";
 import { add, getMessages, Stores } from "../db/";
+
 
 export default function Summarize({ message }: {
   message: string,
 }){
-  const [summary, setSummary] = useState('');
   const { setError, chat, setMessages, setLoading } = useContext(TextContext) as TTextContext;
   const handleSummarize = async () => {
     setLoading(true);
     setError('');
     try {
       // Check if `self.ai` and `summarizer` exist
-      if ('ai' in self && 'summarizer' in (self.ai as AI)) {
-        const canSummarize = await self.ai.summarizer.capabilities();
+      if ('ai' in self && 'summarizer' in self.ai) {
+        const canSummarize = await self?.ai?.summarizer.capabilities();
         let summarizer;
+        const options = {
+          sharedContext: 'This is a scientific article',
+          type: 'key-points',
+          format: 'markdown',
+          length: 'medium',
+        } as AISummarizerCreateOptions;
         if (canSummarize && canSummarize.available !== 'no') {
           if (canSummarize.available === 'readily') {
             // The summarizer can immediately be used.
-            summarizer = await self.ai.summarizer.create();
+            summarizer = await self?.ai?.summarizer.create(options) as AISummarizerType;
           } else {
             // The summarizer can be used after the model download.
-            summarizer = await self.ai.summarizer.create();
-            summarizer.addEventListener('downloadprogress', (e) => {
+            summarizer = await self?.ai?.summarizer.create(options) as AISummarizerType;
+            summarizer.addEventListener('downloadprogress', (e: DownloadEvent) => {
               console.log(e.loaded, e.total);
             });
-            await summarizer.ready;
           }
+          await summarizer.ready;
         } 
 
         // Summarize the message
-        const summ = await summarizer.summarize(message);
+        const summ = await summarizer?.summarize(message);
         console.log(summ);
-        setSummary(summ);
 
         const data = {
           chat_id: chat.id,
