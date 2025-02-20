@@ -53,6 +53,10 @@ export const add = (storeName: string, data: TChat|TMessage) => {
       const tx = db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
       store.add(data);
+
+      db.addEventListener("close", () => {
+        console.log("Database connection closed");
+      });
       resolve(data);
     }
 
@@ -79,6 +83,9 @@ export const list  = (storeName: string) => {
       const res = store.getAll();
 
       res.onsuccess = () => {
+        db.addEventListener("close", () => {
+          console.log("Database connection closed");
+        });
         resolve(res.result);
       };
     }
@@ -101,6 +108,9 @@ export const getMessages = (id: number) => {
       req.onsuccess = function(event: Event) {
         const messages = (event.target as IDBRequest<TMessage[]>).result;
         console.log(`Messages with chat_id ${id} retrieved successfully`);
+        db.addEventListener("close", () => {
+          console.log("Database connection closed");
+        });
         resolve(messages);
       };
 
