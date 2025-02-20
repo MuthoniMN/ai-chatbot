@@ -1,122 +1,113 @@
-import { TChat, TMessage } from "../types/";
+<Bimport { TChat, TMessage } from "../types/";
 
-let request: IDBOpenDBRequest;
-let db: IDBDatabase;
+let db: IDBDatabase | null = null;
 
 export enum Stores {
   Chats = "chats",
   Messages = "messages",
 }
 
-
+// ✅ Open database once and reuse it
 export const initDB = (): Promise<boolean> => {
   return new Promise((resolve) => {
-    // Open the connection
-    const request = indexedDB.open('chats_data');
+    const request = indexedDB.open("chats_data");
 
     request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-      const db = (event.target as IDBOpenDBRequest).result; // Use event.target.result instead of request.result
+      const db = (event.target as IDBOpenDBRequest).result;
 
-      // If the data object store doesn't exist, create it
       if (!db.objectStoreNames.contains(Stores.Chats)) {
-        console.log('Creating chats store');
-        db.createObjectStore(Stores.Chats, { autoIncrement: true, keyPath: 'id' });
+        console.log("Creating chats store");
+        db.createObjectStore(Stores.Chats, { autoIncrement: true, keyPath: "id" });
       }
 
       if (!db.objectStoreNames.contains(Stores.Messages)) {
-        console.log('Creating messages store');
-        const store = db.createObjectStore(Stores.Messages, { autoIncrement: true, keyPath: 'id' });
-        store.createIndex('chat_id', 'chat_id', { unique: false });
+        console.log("Creating messages store");
+        const store = db.createObjectStore(Stores.Messages, { autoIncrement: true, keyPath: "id" });
+        store.createIndex("chat_id", "chat_id", { unique: false });
       }
     };
 
     request.onsuccess = (event: Event) => {
-      const db = (event.target as IDBOpenDBRequest).result; // Use event.target.result
-      console.log('request.onsuccess - initDB', db.version);
+      db = (event.target as IDBOpenDBRequest).result;
+      console.log("Database initialized");
       resolve(true);
     };
 
-    request.onerror = (event: Event) => {
-      console.error('Error opening database:', (event.target as IDBOpenDBRequest).error);
+    request.onerror = () => {
+      console.error("Error opening database:", request.error);
       resolve(false);
     };
   });
 };
 
-export const add = (storeName: string, data: TChat|TMessage) => {
-  return new Promise(resolve => {
-    request = indexedDB.open('chats_data');
+// ✅ Ensure DB is ready before performing operations
+const getDB = async (): Promise<IDBDatabase> => {
+  if (db) return db;
+
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("chats_data");
 
     request.onsuccess = () => {
-      console.log('Storing data in ', storeName);
       db = request.result;
-      const tx = db.transaction(storeName, 'readwrite');
-      const store = tx.objectStore(storeName);
-      store.add(data);
-
-      db.addEventListener("close", () => {
-        console.log("Database connection closed");
-      });
-      resolve(data);
-    }
+      resolve(db);
+    };
 
     request.onerror = () => {
-      const error = request.error?.message;
-      if(error){
-        resolve(error);
-      }else {
-        resolve('Failed due to unknown error!');
-      }
-    }
+      reject(request.error);
+    };
   });
-}
+};
 
-export const list  = (storeName: string) => {
-  return new Promise( (resolve) => {
-    request = indexedDB.open('chats_data');
+// ✅ Reuse `getDB()` instead of opening DB again
+export const add = async (storeName: string, data: TChat | TMessage) => {
+  try {
+    const db = await getDB();
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    const request = store.add(data);
 
-    request.onsuccess = () => {
-      console.log('Retrieving data...');
-      db = request.result;
-      const tx = db.transaction(storeName, 'readonly');
-      const store = tx.objectStore(storeName);
-      const res = store.getAll();
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(data);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("Failed to add data:", error);
+    return error;
+  }
+};
 
-      res.onsuccess = () => {
-        db.addEventListener("close", () => {
-          console.log("Database connection closed");
-        });
-        resolve(res.result);
-      };
-    }
-  });
-}
+export const list = async (storeName: string) => {
+  try {
+    const db = await getDB();
+    const tx = db.transaction(storeName, "readonly");
+    const store = tx.objectStore(storeName);
+    const request = store.getAll();
 
-export const getMessages = (id: number) => {
-  return new Promise(resolve => {
-    request = indexedDB.open('chats_data');
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("Failed to list data:", error);
+    return error;
+  }
+};
 
-    request.onsuccess = () => {
-      console.log('Retrieving chat messages...');
-      db = request.result;
-      const tx = db.transaction(Stores.Messages, 'readonly');
-      const store = tx.objectStore(Stores.Messages);
-      const index = store.index('chat_id');
+export const getMessages = async (id: number) => {
+  try {
+    const db = await getDB();
+    const tx = db.transaction(Stores.Messages, "readonly");
+    const store = tx.objectStore(Stores.Messages);
+    const index = store.index("chat_id");
+    const request = index.getAll(id);
 
-      const req = index.getAll(id);
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (error) {
+    console.error("Failed to retrieve messages:", error);
+    return error;
+  }
+};
 
-      req.onsuccess = function(event: Event) {
-        const messages = (event.target as IDBRequest<TMessage[]>).result;
-        console.log(`Messages with chat_id ${id} retrieved successfully`);
-        db.addEventListener("close", () => {
-          console.log("Database connection closed");
-        });
-        resolve(messages);
-      };
-
-      req.onerror = ( event: Event ) => {
-        console.error('Failed to query messages: ', (event.target as IDBRequest).error);
-      }
-    }
-  });
-}
