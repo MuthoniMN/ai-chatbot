@@ -17,10 +17,9 @@ export default function Summarize({ message }: {
         const canSummarize = await self?.ai?.summarizer.capabilities();
         let summarizer;
         const options = {
-          sharedContext: 'This is a scientific article',
           type: 'key-points',
-          format: 'markdown',
-          length: 'medium',
+          format: 'plain-text',
+          length: 'short',
         } as AISummarizerCreateOptions;
         if (canSummarize && canSummarize.available !== 'no') {
           if (canSummarize.available === 'readily') {
